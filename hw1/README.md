@@ -21,7 +21,7 @@ Your redesign should be submitted as an image showing a low-fidelity mock-up of 
 
 Please critique and redesign the following visualization by CNBC. 
 
-![Jobs Figures according to CNBC](jobs.png)
+![Jobs Figures according to CNBC](img/jobs.png)
 
 ## Problem 2: Select, Critique, and Redesign a Visualization
 
@@ -47,4 +47,4 @@ Your score on this assignment will be as follows:
  - 25%: Redesign of provided visualization.
  - 10%: Selection of visualization. 
  - 20%: Critique of your selected visualization. 
- - 20%: Redesign of your selected visualization.
+ - 20%: Redesingn of your selected visualization.
