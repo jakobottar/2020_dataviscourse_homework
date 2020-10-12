@@ -2,13 +2,12 @@ loadData().then(data => {
 
     // no country selected by default
     this.activeCountry = null;
-    // deafult activeYear is 2000
+    // default activeYear is 2000
     this.activeYear = '2000';
     let that = this;
 
-    console.log(data)
+    // console.log(data)
 
-    // ******* TODO: PART 3 *******
     /**
      * Calls the functions of the views that need to react to a newly selected/highlighted country
      *
@@ -18,10 +17,16 @@ loadData().then(data => {
 
         that.activeCountry = countryID;
 
-        // TODO - your code goes here
-    }
+        worldMap.clearHighlight()
+        infoBox.clearHighlight()
+        gapPlot.clearHighlight()
 
-    // ******* TODO: PART 3 *******
+        if(countryID != null){
+            infoBox.updateTextDescription(countryID, that.activeYear)
+            worldMap.updateHighlightClick(countryID)
+            gapPlot.updateHighlightClick(countryID)
+        }
+    }
 
     /**
      *  Takes the specified activeYear from the range slider in the GapPlot view.
@@ -31,7 +36,14 @@ loadData().then(data => {
      */
     function updateYear(year) {
 
-        //TODO - your code goes here -
+        that.activeYear = year
+
+        // console.log(year)
+        // console.log(that.activeCountry)
+
+        if(that.activeCountry != null){
+            infoBox.updateTextDescription(that.activeCountry, year)
+        }
 
     }
     // Creates the view objects
@@ -40,22 +52,18 @@ loadData().then(data => {
     const gapPlot = new GapPlot(data, updateCountry, updateYear, this.activeYear);
 
 
-    // Initialize gapPlot here.
-    //TODO - your code goes here -
+    // Initialize gapPlot
+    gapPlot.drawPlot()
 
     // here we load the map data
     d3.json('data/world.json').then(mapData => {
-
-        // ******* TODO: PART I *******
-        // You need to pass the world topo data to the drawMap() function as a parameter, along with the starting activeYear.
-        //TODO - your code goes here -
-
-
-
+		let geoJSON = topojson.feature(mapData,mapData.objects.countries);
+		worldMap.drawMap(geoJSON)
     });
 
     // This clears a selection by listening for a click
     document.addEventListener("click", function (e) {
+        // console.log('cleared!')
         updateCountry(null);
     }, true);
 });

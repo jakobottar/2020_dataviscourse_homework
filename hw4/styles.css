@@ -135,6 +135,12 @@ path.hidden {
     pointer-events: none;
 }
 
+.graticule.outline {
+    stroke: #000;
+    stroke-width: 2px;
+    stroke-opacity: 1;
+}
+
 .graticule {
     fill: none;
     stroke: #777;
@@ -206,7 +212,6 @@ div.dropdown-wrapper {
     float: left;
     padding-right: 5px;
 }
-
 
 /*dropdown menu*/
 
@@ -412,4 +417,8 @@ i.europe {
 .activeYear-background {
     font-size: 80px;
     opacity: .4;
+}
+
+.countries {
+    fill: #d9d9d9;
 }

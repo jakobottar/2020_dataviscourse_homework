@@ -23,8 +23,27 @@ class InfoBox {
      */
     constructor(data) {
 
-        //TODO - your code goes here -
+        this.data = data
 
+        this.infoBox = d3.select('.inner-wrapper')
+            .append('div')
+            .attr('id', 'country-detail')
+
+        let label = d3.select('#country-detail')
+            .append("div")
+            .classed("label", true)
+
+        label.append('i')
+            .attr('id', 'globe-icon')
+            .classed("fas fa-globe-asia", true)
+
+        label.append('span')
+            .attr('id', 'info-box-label')
+            .text("Select a country.")
+
+        d3.select('#country-detail')
+            .append('div')
+            .attr('id', 'info-box-body')
     }
 
     /**
@@ -33,26 +52,38 @@ class InfoBox {
      * @param activeYear the year to render the data for
      */
     updateTextDescription(activeCountry, activeYear) {
-        // ******* TODO: PART 4 *******
-        // Update the text elements in the infoBox to reflect:
-        // Selected country, region, population and stats associated with the country.
-        /*
-         * You will need to get an array of the values for each category in your data object
-         * hint: you can do this by using Object.values(this.data)
-         * you will then need to filter just the activeCountry data from each array
-         * you will then pass the data as paramters to make an InfoBoxData object for each category
-         *
-         */
+        let newData = []
 
-        //TODO - your code goes here -
+        for (let key in this.data) {
+            let countryData = this.data[key].find( ({ geo }) => geo === activeCountry )
+            newData.push(new InfoBoxData(countryData.country, countryData.region, countryData.indicator_name, countryData[activeYear])) 
+        }
+
+        d3.select('#info-box-label').text(newData[0].country)
+        d3.select('#globe-icon').classed(newData[0].region, true)
+
+        let body = d3.select('#info-box-body')
+            .selectAll('span')
+            .data(newData)
+        
+        body.enter()
+            .append('span')
+            .text(d => `${d.indicator_name}: ${d.value}`)
+            .classed("stat", true)
+
+        body.text(d => `${d.indicator_name}: ${d.value}`)
     }
 
     /**
      * Removes or makes invisible the info box
      */
     clearHighlight() {
+        d3.select('#info-box-label').text("Select a country.")
+        d3.select('#globe-icon').attr('class', 'fas fa-globe-asia')
 
-        //TODO - your code goes here -
+        d3.select('#info-box-body')
+            .selectAll('span')
+            .remove()
     }
 
 }

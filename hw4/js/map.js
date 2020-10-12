@@ -43,52 +43,60 @@ class Map {
      * @param world the json data with the shape of all countries and a string for the activeYear
      */
     drawMap(world) {
-        //note that projection is global!
+        let that = this
 
-        // ******* TODO: PART I *******
+        let path = d3.geoPath()
+            .projection(this.projection);
 
-        // Draw the background (country outlines; hint: use #map-chart)
-        // Make sure to add a graticule (gridlines) and an outline to the map
+        d3.select('#map-chart')
+            .append('svg')
+            .append('g')
+            .attr('id', 'mapLayer')
 
-        // Hint: assign an id to each country path to make it easier to select afterwards
-        // we suggest you use the variable in the data element's id field to set the id
+        d3.select("#mapLayer").selectAll("path")
+			.data(world.features)
+			.join("path")
+            .attr("d", path)
+            .attr("id", d => `${d.id.toLowerCase()}-map`)
+            .attr("class", d => { 
+                let popData = this.populationData.find( ({ geo }) => geo === d.id.toLowerCase() )
+                if(typeof popData !== 'undefined'){
+                    return popData.region
+                }
+                return "countries"
+            })
+            .classed('boundary', true)
+            .on('click', function(d) {
+                that.updateCountry(d.id.toLowerCase())
+            })
 
-        // Make sure and give your paths the appropriate class (see the .css selectors at
-        // the top of the provided html file)
+        let graticule = d3.geoGraticule();
+        d3.select("#mapLayer")
+            .append('path')
+            .datum(graticule)
+            .classed('graticule', true)
+            .attr('d', path)
 
-        // You need to match the country with the region. This can be done using .map()
-        // We have provided a class structure for the data called CountryData that you should assign the paramters to in your mapping
-
-        //TODO - your code goes here
+        d3.select("#mapLayer")
+            .append("path")
+            .datum(graticule.outline)
+            .classed("graticule outline", true)
+            .attr("d", path);
+            
     }
 
     /**
-     * Highlights the selected conutry and region on mouse click
+     * Highlights the selected country and region on mouse click
      * @param activeCountry the country ID of the country to be rendered as selected/highlighted
      */
     updateHighlightClick(activeCountry) {
-        // ******* TODO: PART 3 *******
-        // Assign selected class to the target country and corresponding region
-        // Hint: If you followed our suggestion of using classes to style
-        // the colors and markers for countries/regions, you can use
-        // d3 selection and .classed to set these classes on here.
-
-        //TODO - your code goes here
-
+        d3.select(`#${activeCountry}-map`).classed('selected-country', true)
     }
 
     /**
      * Clears all highlights
      */
     clearHighlight() {
-        // ******* TODO: PART 3 *******
-        // Clear the map of any colors/markers; You can do this with inline styling or by
-        // defining a class style in styles.css
-
-        // Hint: If you followed our suggestion of using classes to style
-        // the colors and markers for hosts/teams/winners, you can use
-        // d3 selection and .classed to set these classes off here.
-
-        //TODO - your code goes here
+        d3.select("#mapLayer").selectAll("path").classed('selected-country', false)
     }
 }

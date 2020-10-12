@@ -63,6 +63,24 @@ td:last-of-type
     fill: steelblue;
 }
 
+circle.trump{
+    stroke: black;
+    stroke-width: 1px;
+}
+
+circle.biden{
+    stroke: black;
+    stroke-width: 1px;
+}
+
+rect.trump {
+    opacity: 75%;
+}
+
+rect.biden {
+    opacity: 75%;
+}
+
 td {
     padding-top: 0px;
     padding-bottom: 0px;
@@ -143,4 +161,14 @@ tr:hover .margin-bar {
 .poll-name {
     color: #454545;
     font-size: 9pt;
+}
+
+.axis-line{
+    stroke: black;
+    stroke-width: 2px;
+}
+
+.grid-line{
+    stroke: grey;
+    stroke-width: 1px;
 }

@@ -17,7 +17,8 @@ class Table {
             {
                 sorted: false,
                 ascending: false,
-                key: 'state'
+                key: 'state', 
+                alterFunc: d => d
             },
             {
                 sorted: false,
@@ -53,6 +54,34 @@ class Table {
          * Draw the legend for the bar chart.
          */
 
+        let axisHeight = 150;
+
+        
+        let legendLabs = [  { 'loc': -75, 'lab': '+75' },
+                            { 'loc': -50, 'lab': '+50' },
+                            { 'loc': -25, 'lab': '+25' },
+                            { 'loc': 25, 'lab': '+25' },
+                            { 'loc': 50, 'lab': '+50' },
+                            { 'loc': 75, 'lab': '+75' }]
+		let legend = d3.select('#marginAxis')
+
+		legend.attr('width', this.vizWidth)
+			.attr('height', this.vizHeight)
+
+        legend.append('path')
+            .attr('d', `M${this.scaleX(0)} 0 L ${this.scaleX(0)}, ${this.vizHeight}`)
+            .classed('axis-line', true)
+
+		legend.selectAll('text')
+			.data(legendLabs)
+			.enter()
+			.append('text')
+			.text(d => d.lab)
+			.attr('y', this.vizHeight - 10)
+			.attr('x', d => this.scaleX(d.loc))
+			.classed('label', true)
+			.classed('biden', d => d.loc < 0)
+			.classed('trump', d => d.loc > 0)
     }
 
     drawTable() {
@@ -82,6 +111,28 @@ class Table {
         /**
          * with the forecastSelection you need to set the text based on the dat value as long as the type is 'text'
          */
+
+        let textSelection = forecastSelection.filter(d => d.type === 'text');
+        
+        textSelection
+            .filter(".state-name")
+            .text(d => d.value)
+
+        textSelection
+            .filter(".poll-name")
+            .text(d => d.value)
+
+        textSelection
+            .filter(".biden")
+            .text(d => d.value)
+
+        textSelection
+            .filter(".trump")
+            .text(d => d.value)
+
+        textSelection
+            .filter(".poll-data")
+            .text("")
 
         let vizSelection = forecastSelection.filter(d => d.type === 'viz');
 
@@ -136,7 +187,7 @@ class Table {
         }
         else
         {
-            winChance = {type: 'text', class: '', value: ''}
+            winChance = {type: 'text', class: 'poll-data', value: ''}
         }
 
         let dataList = [stateInfo, marginInfo, winChance];
@@ -155,27 +206,71 @@ class Table {
          * update the column headers based on the sort state
          */
 
+        d3.select('#columnHeaders')
+            .selectAll('th')
+            .data(this.headerData)
+            .classed('sorting', d => d.sorted)
+
+        d3.select('#columnHeaders')
+            .selectAll('i')
+            .attr('class', 'fas no-display')
+
+        d3.select('#columnHeaders')
+            .selectAll('i')
+            .data(this.headerData)
+            .classed('no-display', false)
+            .classed('fa-sort-up', d => d.sorted && d.ascending)
+            .classed('fa-sort-down', d => d.sorted && !d.ascending)
     }
 
     addGridlines(containerSelect, ticks) {
-        ////////////
-        // PART 3 // 
-        ////////////
-        /**
-         * add gridlines to the vizualization
-         */
-    
+		containerSelect.selectAll('path')
+			.data(ticks)
+			.enter()
+			.append('path')
+            .attr('d', d => `M${this.scaleX(d)} ${0} L ${this.scaleX(d)}, ${this.vizHeight}`)
+			.classed('axis-line', d => d == 0)
+			.classed('grid-line', d => d != 0)
     }
 
     addRectangles(containerSelect) {
-        ////////////
-        // PART 4 // 
-        ////////////
-        /**
-         * add rectangles for the bar charts
-         */
+        containerSelect.selectAll('rect').remove()
 
- 
+        containerSelect = containerSelect.filter(d => d.isForecast)
+
+        containerSelect
+            .filter(d => Math.sign(d.value.marginLow) == Math.sign(d.value.marginHigh))
+            .selectAll('rect')
+            .data(d => [d])
+            .join('rect')
+            .attr('x', d => this.scaleX(d.value.marginLow))
+			.attr('y', 5)
+			.attr('height', 20)
+			.attr('width', d => this.scaleX(d.value.marginHigh) - this.scaleX(d.value.marginLow) )
+			.classed('biden', d => d.value.margin < 0)
+            .classed('trump', d => d.value.margin > 0)
+
+        let swing = containerSelect
+            .filter(d => Math.sign(d.value.marginLow) != Math.sign(d.value.marginHigh))
+            .selectAll('rect')
+            .data(d => [d])
+
+        swing.join('rect')
+			.attr('x', d => this.scaleX(d.value.marginLow))
+			.attr('y', 5)
+			.attr('height', 20)
+			.attr('width', d => this.scaleX(0) - this.scaleX(d.value.marginLow) )
+            .classed('biden', d => 0 > d.value.marginLow)
+            .classed('split-rect', true)
+
+        swing.join('rect')
+			.attr('x', d => this.scaleX(0))
+			.attr('y', 5)
+			.attr('height', 20)
+			.attr('width', d => this.scaleX(d.value.marginHigh) - this.scaleX(0) )
+            .classed('trump', d => 0 < d.value.marginHigh)
+            .classed('split-rect', true)
+	
     }
 
     addCircles(containerSelect) {
@@ -186,6 +281,21 @@ class Table {
          * add circles to the vizualizations
          */
 
+		containerSelect
+            .selectAll('circle')
+            .data(d => [d])
+            .join('circle')
+			.attr('cx', d => this.scaleX(d.value.margin))
+			.attr('cy', d => {
+                if(d.isForecast){return 15}
+                return 10
+            })
+			.attr('r', d => {
+                if(d.isForecast){return 5}
+                return 4
+            })
+			.classed('biden', d => d.value.margin < 0)
+			.classed('trump', d => d.value.margin > 0)
 
     }
 
@@ -198,6 +308,35 @@ class Table {
          * Attach click handlers to all the th elements inside the columnHeaders row.
          * The handler should sort based on that column and alternate between ascending/descending.
          */
+        let that = this
+
+        let header = d3.select('#columnHeaders')
+            .selectAll('th')
+            .data(that.headerData)
+            .on('click', function(d, h) {
+                that.collapseAll()
+                that.headerData.forEach(e => e.sorted = false)
+
+                if(!h.ascending){
+                    that.tableData.sort((a,b) => {
+                        if(h.alterFunc(a[h.key]) > h.alterFunc(b[h.key])){ return 1}
+                        if(h.alterFunc(a[h.key]) < h.alterFunc(b[h.key])){ return -1}
+                        return 0
+                    })
+                    h.ascending = true
+                    h.sorted = true
+                }
+                else{
+                    that.tableData.sort((a,b) => {
+                        if(h.alterFunc(a[h.key]) > h.alterFunc(b[h.key])){ return -1}
+                        if(h.alterFunc(a[h.key]) < h.alterFunc(b[h.key])){ return 1}
+                        return 0
+                    })
+                    h.ascending = false
+                    h.sorted = true
+                }
+                that.drawTable()
+            })
 
 
     }
@@ -211,6 +350,23 @@ class Table {
          * Update table data with the poll data and redraw the table.
          */
 
+        let pData = this.pollData.get(rowData.state)
+
+        if(typeof pData == 'undefined'){return}
+
+        if(this.tableData[index].isExpanded){
+            this.tableData[index].isExpanded = false
+            this.tableData.splice(index+1, pData.length-1)
+            
+        }
+        else{
+            this.tableData[index].isExpanded = true
+            for(let i = 1; i < pData.length; i++){
+                pData[i].isForecast = false
+                this.tableData.splice(index + i, 0, pData[i])
+            }
+        }
+        this.drawTable()
     }
 
     collapseAll() {
