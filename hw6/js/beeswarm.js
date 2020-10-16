@@ -40,22 +40,40 @@ class Beeswarm {
 
     }
 
-    drawCircles(isExpanded = true){
+    drawCircles(isExpanded = false){
         console.log(this.data)
 
         let xScale = d3.scaleLinear()
-            .domain([Math.min.apply(Math, this.data.map(d => d.sourceX)), 
-                Math.max.apply(Math, this.data.map(d => d.sourceX))])
+            .domain([d3.min(this.data, d => d.sourceX), d3.max(this.data, d => d.sourceX)])
             .range([this.size.padding, this.size.width-this.size.padding])
 
-        // TODO: In order to dynamically size the width of the plot, I'll need to do the hacker version :(
+        let rScale = d3.scaleLinear()
+            .domain([d3.min(this.data, d => +d.total), d3.max(this.data, d => +d.total)])
+            .range([3, 13])
+
+        // TODO: Get this list dynamically
+        let bins = ['economy/fiscal issues', 'energy/environment', 'crime/justice', 'education', 'health care', 'mental health/substance abuse']
+
+        let colorScale = d3.scaleOrdinal()
+            .domain(bins)
+            .range(d3.schemeSet2.slice(0, 5))
+
+        // TODO: In order to dynamically size the width of the plot and make everything look good, I'll need to do the hacker version :(
         d3.select('#circles')
                 .selectAll('circle')
                 .data(this.data)
                 .join('circle')
-                .attr('cy', d => d.sourceY + 100)
-                .attr('cx', d => xScale(d.sourceX))
-                .attr('r', d => +d.total)
+                .attr('cy', function(d) {
+                    if(isExpanded){return d.moveY + 100}
+                    return d.sourceY + 100
+                    })
+                .attr('cx', function(d) {
+                        if(isExpanded){return xScale(d.moveX)}
+                        return xScale(d.sourceX)
+                        })
+                .attr('r', d => rScale(+d.total))
+                .attr('fill', d => colorScale(d.category))
+
     }
 
     drawText(isExpanded = true){

@@ -8,6 +8,8 @@ margin: 10px;
     grid-template-rows: auto;
     gap: 10px;
     grid-template-areas: 'bee bee table';
+    margin-left: 20px;
+    margin-right: 20px;
 }
 
 #beeswarm {
@@ -23,7 +25,13 @@ margin: 10px;
 }
 
 .axis {
-    
+
+}
+
+#circles circle {
+    opacity: 75%;
+    /* fill: gray; */
+    stroke: black;
 }
 
 #table {
