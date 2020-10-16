@@ -1,0 +1,31 @@
+body {
+margin: 10px;
+}
+
+.grid-container {
+    display: grid;
+    grid-template-columns: 1fr 1fr 1fr;
+    grid-template-rows: auto;
+    gap: 10px;
+    grid-template-areas: 'bee bee table';
+}
+
+#beeswarm {
+    grid-area: bee;
+    /* TODO: need to find better way of setting height */
+    height: 800px; 
+    width: 100%;
+}
+
+.wrapper-group {
+    height: 100%;
+    width: 100%;
+}
+
+.axis {
+    
+}
+
+#table {
+    grid-area: table;
+}
