@@ -37,11 +37,11 @@ class Beeswarm {
     }
 
     drawAxis(){
-
+        
     }
 
     drawCircles(isExpanded = false){
-        console.log(this.data)
+        // console.log(this.data)
 
         let xScale = d3.scaleLinear()
             .domain([d3.min(this.data, d => d.sourceX), d3.max(this.data, d => d.sourceX)])
@@ -63,20 +63,29 @@ class Beeswarm {
                 .selectAll('circle')
                 .data(this.data)
                 .join('circle')
-                .attr('cy', function(d) {
-                    if(isExpanded){return d.moveY + 100}
-                    return d.sourceY + 100
-                    })
-                .attr('cx', function(d) {
-                        if(isExpanded){return xScale(d.moveX)}
-                        return xScale(d.sourceX)
-                        })
+                .transition()
+                .duration(200)
+                .attr('cy', function(d) { return isExpanded ? (d.moveY + 75) : (d.sourceY + 75) })
+                .attr('cx', function(d) { return isExpanded ? xScale(d.moveX) : xScale(d.sourceX) })
                 .attr('r', d => rScale(+d.total))
                 .attr('fill', d => colorScale(d.category))
 
     }
 
-    drawText(isExpanded = true){
-        // console.log(isExpanded)
+    drawText(isExpanded = false){
+        let labs = ['Economy/Fiscal Issues', 'Energy/Environment', 'Crime/Justice', 'Education', 'Health Care', 'Mental Health/Substance Abuse']
+
+        d3.select('#plot-text')
+            .selectAll('text')
+            .data(labs)
+            .join('text')
+            .classed('plot-labs', true)
+            .transition()
+            .duration(200)
+            .attr('x', 10)
+            .attr('y', (d, i) => {return isExpanded ? i*130 + 20 : 20})
+            .text(d => d)
+            .attr('opacity', d => {return isExpanded ? 100 : 0})
+            
     }
 }
