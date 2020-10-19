@@ -24,10 +24,6 @@ margin: 10px;
     width: 100%;
 }
 
-/* .axis {
-
-} */
-
 #axis .dem {
     text-anchor: start;
 }
@@ -47,7 +43,6 @@ margin: 10px;
 
 .plot-labs {
     fill: grey;
-    
 }
 
 #circles circle {
