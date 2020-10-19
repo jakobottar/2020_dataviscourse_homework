@@ -24,13 +24,30 @@ margin: 10px;
     width: 100%;
 }
 
-.axis {
+/* .axis {
 
+} */
+
+#axis .dem {
+    text-anchor: start;
+}
+
+#axis .rep {
+    text-anchor: end;
+}   
+
+#axis .labs {
+    text-anchor: middle;
+}
+
+#axis .axis-line {
+    stroke-width: 2pt;
+    stroke: black;
 }
 
 .plot-labs {
     fill: grey;
-    text-align: left;
+    
 }
 
 #circles circle {

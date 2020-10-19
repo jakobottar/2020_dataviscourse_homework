@@ -5,7 +5,7 @@ class Beeswarm {
         this.size = {
             height: undefined,
             width: undefined,
-            padding: 10
+            padding: 25
         };
 
         this.drawPlot()
@@ -18,7 +18,6 @@ class Beeswarm {
     }
 
     drawPlot(){
-
         let svgGroup = d3.select('#beeswarm')
             .append('svg')
             .classed('wrapper-group', true)
@@ -37,12 +36,45 @@ class Beeswarm {
     }
 
     drawAxis(){
-        
+        let axisPts = [-50, -40, -30, -20, -10, 0, 10, 20, 30, 40, 50, 60]
+
+        let xScale = d3.scaleLinear()
+            .domain([d3.min(this.data, d => d.position), d3.max(this.data, d => d.position)])
+            .range([this.size.padding, this.size.width-this.size.padding])
+
+        let axis = d3.select('#axis')
+
+        axis.selectAll('path')
+            .data(axisPts)
+            .enter()
+            .append('path')
+            .attr('d', d => `M${xScale(d)} ${20} L ${xScale(d)}, ${30}`)
+            .classed('axis-line', true)
+
+        axis.selectAll('text')
+            .data(axisPts)
+            .enter()
+            .append('text')
+            .attr('x', d => xScale(d))
+            .attr('y', 45)
+            .text(d => Math.abs(d))
+            .classed('labs', true)
+
+        axis.append('text')
+            .attr('x', 0)
+            .attr('y', 15)
+            .text('Democratic Leaning')
+            .classed('dem', true)
+
+        axis.append('text')
+            .attr('x', this.size.width)
+            .attr('y', 15)
+            .text('Republican Leaning')
+            .classed('rep', true)
     }
 
     drawCircles(isExpanded = false){
         // console.log(this.data)
-
         let xScale = d3.scaleLinear()
             .domain([d3.min(this.data, d => d.sourceX), d3.max(this.data, d => d.sourceX)])
             .range([this.size.padding, this.size.width-this.size.padding])
@@ -65,7 +97,7 @@ class Beeswarm {
                 .join('circle')
                 .transition()
                 .duration(200)
-                .attr('cy', function(d) { return isExpanded ? (d.moveY + 75) : (d.sourceY + 75) })
+                .attr('cy', function(d) { return isExpanded ? (d.moveY + 75 + 50) : (d.sourceY + 75 + 50) })
                 .attr('cx', function(d) { return isExpanded ? xScale(d.moveX) : xScale(d.sourceX) })
                 .attr('r', d => rScale(+d.total))
                 .attr('fill', d => colorScale(d.category))
@@ -82,8 +114,8 @@ class Beeswarm {
             .classed('plot-labs', true)
             .transition()
             .duration(200)
-            .attr('x', 10)
-            .attr('y', (d, i) => {return isExpanded ? i*130 + 20 : 20})
+            .attr('x', 0)
+            .attr('y', (_d, i) => {return isExpanded ? i*130 + 20 + 50 : 20 + 50})
             .text(d => d)
             .attr('opacity', d => {return isExpanded ? 100 : 0})
             
