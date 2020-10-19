@@ -13,8 +13,7 @@ async function loadData(){
     return d3.json('./data/words.json')
 }
 
-function updateChart(){
+function updatePlot(){
     let isChecked = document.getElementById('expandSwitch').checked
-    beeswarm.drawCircles(isChecked)
-    beeswarm.drawText(isChecked)
+    beeswarm.updatePlot(isChecked)
 }

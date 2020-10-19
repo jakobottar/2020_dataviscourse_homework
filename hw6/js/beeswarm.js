@@ -11,10 +11,9 @@ class Beeswarm {
         this.drawPlot()
     }
 
-    doSomething(){
-        if(typeof this.data != 'undefined'){
-            console.log("Beeswarm got the data!");
-        }
+    updatePlotSize(){
+        this.size.width = d3.select('#beeswarm').node().getBoundingClientRect().width;
+        this.size.height = d3.select('#beeswarm').node().getBoundingClientRect().height;
     }
 
     drawPlot(){
@@ -23,20 +22,40 @@ class Beeswarm {
             .classed('wrapper-group', true)
 
         // set size of plot
-        this.size.width = d3.select('#beeswarm').node().getBoundingClientRect().width;
-        this.size.height = d3.select('#beeswarm').node().getBoundingClientRect().height;
+        this.updatePlotSize()
 
         svgGroup.append('g').attr('id', 'axis')
         svgGroup.append('g').attr('id', 'circles')
         svgGroup.append('g').attr('id', 'plot-text')
 
+        let tooltip = d3.select('#beeswarm')
+            .append('div')
+            .attr("class", "tooltip")
+            .style("opacity", 0)
+        
+        tooltip.append('h2')
+            .classed('tooltip-header', true)
+
+        // TODO: Find a better way to do this
+        tooltip.append('span')
+            .classed('tooltip-stats-l1', true)
+        tooltip.append('br')
+        tooltip.append('span')
+            .classed('tooltip-stats-l2', true)
+
+        this.updatePlot()
+    }
+
+    updatePlot(isExpanded = false){
         this.drawAxis()
-        this.drawCircles()
-        this.drawText()
+        this.drawCircles(isExpanded)
+        this.drawText(isExpanded)
     }
 
     drawAxis(){
-        let axisPts = [-50, -40, -30, -20, -10, 0, 10, 20, 30, 40, 50, 60]
+        this.updatePlotSize()
+
+        let axisPts = [-50, -40, -30, -20, -10, 0, 10, 20, 30, 40, 50]
 
         let xScale = d3.scaleLinear()
             .domain([d3.min(this.data, d => d.position), d3.max(this.data, d => d.position)])
@@ -44,10 +63,11 @@ class Beeswarm {
 
         let axis = d3.select('#axis')
 
+        // TODO: Do this with built-in d3 functions
+
         axis.selectAll('line')
             .data(axisPts)
-            .enter()
-            .append('line')
+            .join('line')
             .attr('x1', d => xScale(d))
             .attr('x2', d => xScale(d))
             .attr('y1', 20)
@@ -56,8 +76,7 @@ class Beeswarm {
 
         axis.selectAll('text')
             .data(axisPts)
-            .enter()
-            .append('text')
+            .join('text')
             .attr('x', d => xScale(d))
             .attr('y', 45)
             .text(d => Math.abs(d))
@@ -84,7 +103,8 @@ class Beeswarm {
     }
 
     drawCircles(isExpanded = false){
-        // console.log(this.data)
+        this.updatePlotSize()
+
         let xScale = d3.scaleLinear()
             .domain([d3.min(this.data, d => d.sourceX), d3.max(this.data, d => d.sourceX)])
             .range([this.size.padding, this.size.width-this.size.padding])
@@ -101,20 +121,25 @@ class Beeswarm {
             .range(d3.schemeSet2.slice(0, 5))
 
         // TODO: In order to dynamically size the width of the plot and make everything look good, I'll need to do the hacker version :(
-        d3.select('#circles')
-                .selectAll('circle')
-                .data(this.data)
-                .join('circle')
-                .transition()
-                .duration(200)
-                .attr('cy', function(d) { return isExpanded ? (d.moveY + 75 + 50) : (d.sourceY + 75 + 50) })
-                .attr('cx', function(d) { return isExpanded ? xScale(d.moveX) : xScale(d.sourceX) })
-                .attr('r', d => rScale(+d.total))
-                .attr('fill', d => colorScale(d.category))
-
+        let circles = d3.select('#circles')
+            .selectAll('circle')
+            .data(this.data)
+            .join('circle')
+            .on('mouseover', this.mouseOver)
+            .on('mousemove', this.mouseMove)
+            .on('mouseout', this.mouseOut)
+            
+        circles.transition()
+            .duration(200)
+            .attr('cy', function(d) { return isExpanded ? (d.moveY + 75 + 50) : (d.sourceY + 75 + 50) })
+            .attr('cx', function(d) { return isExpanded ? xScale(d.moveX) : xScale(d.sourceX) })
+            .attr('r', d => rScale(+d.total))
+            .attr('fill', d => colorScale(d.category))
     }
 
     drawText(isExpanded = false){
+        this.updatePlotSize()
+
         let labs = ['Economy/Fiscal Issues', 'Energy/Environment', 'Crime/Justice', 'Education', 'Health Care', 'Mental Health/Substance Abuse']
 
         d3.select('#plot-text')
@@ -134,4 +159,38 @@ class Beeswarm {
             .duration(200)
             .attr('y2', isExpanded ? this.size.height : 200)
     }
+
+    mouseOver(data){
+        let roundTwo = (d) => Math.round(100*Math.abs(d))/100
+
+        d3.select('.tooltip-header')
+            .text(`${data.category.replace(/\b\w/g, c => c.toUpperCase())}`)
+            // TODO: Learn more about regex
+
+        d3.select('.tooltip-stats-l1')
+            .text(`${data.position > 0 ? "R+" : "D+"}, ${roundTwo(data.position)}%`)
+        d3.select('.tooltip-stats-l2')
+            .text(`in ${Math.round((data.total/50)*100)}% of speeches`)
+
+
+        d3.select('.tooltip')
+            .transition()
+            .duration(200)
+            .style('opacity', 0.9)
+            
+    }
+
+    mouseMove(data){
+        d3.select('.tooltip')
+            .style("left", (d3.event.pageX + 10) + "px")     
+            .style("top", (d3.event.pageY - 28) + "px"); 
+    }
+
+    mouseOut(data){
+        d3.select('.tooltip')
+            .transition()
+            .duration(200)
+            .style('opacity', 0)
+    }
+
 }

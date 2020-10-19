@@ -15,7 +15,8 @@
     <link rel="stylesheet" href="css/styles.css">
 </head>
 
-<body>
+<!-- TODO: Change to a resizeObserver -->
+<body onresize="updatePlot()">
     <div id="header-wrap">
         <header>
             <h1>The State of the State of the States</h1>
@@ -24,7 +25,7 @@
     </div>
     <!-- from https://www.w3schools.com/howto/howto_css_switch.asp -->
     <label class="switch"> 
-        <input type="checkbox" id='expandSwitch' onclick='updateChart()' autocomplete="off">
+        <input type="checkbox" id='expandSwitch' onclick='updatePlot()' autocomplete="off">
         <span class="slider round"></span>
     </label>
     <div class='grid-container'>
