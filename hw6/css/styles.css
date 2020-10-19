@@ -15,7 +15,7 @@ margin: 10px;
 #beeswarm {
     grid-area: bee;
     /* TODO: need to find better way of setting height */
-    height: 800px; 
+    height: 850px; 
     width: 100%;
 }
 
@@ -36,9 +36,14 @@ margin: 10px;
     text-anchor: middle;
 }
 
-#axis .axis-line {
+.axis-line {
     stroke-width: 2pt;
     stroke: black;
+}
+
+#center-line {
+    stroke-width: 1pt;
+    stroke: grey;
 }
 
 .plot-labs {

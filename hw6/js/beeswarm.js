@@ -44,11 +44,14 @@ class Beeswarm {
 
         let axis = d3.select('#axis')
 
-        axis.selectAll('path')
+        axis.selectAll('line')
             .data(axisPts)
             .enter()
-            .append('path')
-            .attr('d', d => `M${xScale(d)} ${20} L ${xScale(d)}, ${30}`)
+            .append('line')
+            .attr('x1', d => xScale(d))
+            .attr('x2', d => xScale(d))
+            .attr('y1', 20)
+            .attr('y2', 30)
             .classed('axis-line', true)
 
         axis.selectAll('text')
@@ -71,6 +74,13 @@ class Beeswarm {
             .attr('y', 15)
             .text('Republican Leaning')
             .classed('rep', true)
+
+        axis.append('line')
+            .attr('x1', xScale(0))
+            .attr('x2', xScale(0))
+            .attr('y1', 50)
+            .attr('y2', 50)
+            .attr('id', 'center-line')
     }
 
     drawCircles(isExpanded = false){
@@ -117,7 +127,11 @@ class Beeswarm {
             .attr('x', 0)
             .attr('y', (_d, i) => {return isExpanded ? i*130 + 20 + 50 : 20 + 50})
             .text(d => d)
-            .attr('opacity', d => {return isExpanded ? 100 : 0})
+            .attr('opacity', d => {return isExpanded ? 100 : 0})    
             
+        d3.select('#center-line')
+            .transition()
+            .duration(200)
+            .attr('y2', isExpanded ? this.size.height : 200)
     }
 }
