@@ -16,4 +16,5 @@ async function loadData(){
 function updatePlot(){
     let isChecked = document.getElementById('expandSwitch').checked
     beeswarm.updatePlot(isChecked)
+    table.updateTable()
 }

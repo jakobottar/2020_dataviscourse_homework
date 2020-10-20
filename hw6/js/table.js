@@ -6,7 +6,8 @@ class Table {
         this.viz = {
             height: 30,
             freqWidth: undefined,
-            percWidth: undefined
+            percWidth: undefined,
+            padding: 7
         }
 
         this.headerData = [
@@ -36,6 +37,15 @@ class Table {
             }
         ]
 
+        this.freqScale = undefined
+        this.percScale = undefined
+
+        // TODO: Get this dynamically
+        let bins = ['economy/fiscal issues', 'energy/environment', 'crime/justice', 'education', 'health care', 'mental health/substance abuse']
+        this.colorScale = d3.scaleOrdinal()
+            .domain(bins)
+            .range(d3.schemeSet2.slice(0, 6))
+
         console.log(this.data)
         this.drawTable()
     }
@@ -46,15 +56,54 @@ class Table {
         }
     }
 
-    getTableImgSize() {
+    updateTableSize() {
         this.viz.freqWidth = d3.select('#freqAxis').node().getBoundingClientRect().width;
         this.viz.percWidth = d3.select('#percentAxis').node().getBoundingClientRect().width;
+
+        this.updateScales();
+    }
+
+    updateScales() {
+        this.freqScale = d3.scaleLinear()
+            .domain([0, 1])
+            .range([this.viz.padding, this.viz.freqWidth - 2*this.viz.padding])
+
+        this.percScale = d3.scaleLinear()
+            .domain([0, 100])
+            .range([this.viz.padding, this.viz.percWidth/2 - 2])
     }
 
     drawTable(){
+        this.updateTableSize()
         this.attachSortHandlers()
-        this.getTableImgSize()
         this.updateTable()
+    }
+
+    drawAxis(){
+        this.updateTableSize()
+
+        let xScale = d3.scaleLinear()
+            .domain([-100, 100])
+            .range([this.viz.padding, this.viz.percWidth - 2*this.viz.padding])
+
+        d3.select("#freqAxis")
+            .selectAll('g')
+            .data(d => [0])
+            .join('g')
+            .attr('transform', `translate(0,30)`)
+            .call(d3.axisTop(this.freqScale)
+                    .ticks(3)
+                    .tickValues([0, 0.5, 1]))
+
+        d3.select("#percentAxis")
+            .selectAll('g')
+            .data(d => [0])
+            .join('g')
+            .attr('transform', `translate(0,30)`)
+            .call(d3.axisTop(xScale)
+                .ticks(3)
+                .tickValues([-100, -50, 0, 50, 100])
+                .tickFormat(d => Math.abs(d)))
     }
 
     updateTable(){
@@ -78,42 +127,31 @@ class Table {
 
         this.drawFreqBars(vizCells.filter(d => d.class == 'frequency'))
         this.drawPercBars(vizCells.filter(d => d.class == 'percentages'))
+
+        this.drawAxis()
     }
 
     drawFreqBars(frequencyCells){
-        let xScale = d3.scaleLinear()
-            .domain([0, 1])
-            .range([0, this.viz.freqWidth])
-
-        // TODO: Get this list dynamically
-        let bins = ['economy/fiscal issues', 'energy/environment', 'crime/justice', 'education', 'health care', 'mental health/substance abuse']
-
-        let colorScale = d3.scaleOrdinal()
-            .domain(bins)
-            .range(d3.schemeSet2.slice(0, 6))
-
+        this.updateTableSize() 
+        
         frequencyCells.selectAll('rect')
             .data(d => [d])
             .join('rect')
             .transition()
             .duration(200)
-            .attr('width', d => xScale(d.value))
+            .attr('x', this.viz.padding)
+            .attr('width', d => this.freqScale(d.value))
             .attr('height', this.viz.height)
-            .attr('fill', d => colorScale(d.category))
+            .attr('fill', d => this.colorScale(d.category))
     }
 
     drawPercBars(percentageCells){
-        this.getTableImgSize()
+        this.updateTableSize()
 
         percentageCells.selectAll('g')
             .data(d => [{name: 'dem-rect'}, {name: 'rep-rect'}])
             .join('g')
             .attr('id', d => d.name)
-
-
-        let xScale = d3.scaleLinear()
-            .domain([0, 100])
-            .range([0, this.viz.percWidth/2])
         
         percentageCells.select('#dem-rect')
             .selectAll('rect')
@@ -121,9 +159,9 @@ class Table {
             .join('rect')
             .transition()
             .duration(200)
-            .attr('width', d => xScale(d.value[0]))
+            .attr('width', d => this.percScale(d.value[0]))
             .attr('height', this.viz.height)
-            .attr('x', d => xScale(100) - xScale(d.value[0]))
+            .attr('x', d => this.percScale(100) - this.percScale(d.value[0]))
             .attr('fill', '#699bbe')
 
         percentageCells.select('#rep-rect')
@@ -132,7 +170,7 @@ class Table {
             .join('rect')
             .transition()
             .duration(200)
-            .attr('width', d => xScale(d.value[1]))
+            .attr('width', d => this.percScale(d.value[1]))
             .attr('height', this.viz.height)
             .attr('x', this.viz.percWidth/2)
             .attr('fill', '#ed8276')
