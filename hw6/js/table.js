@@ -9,6 +9,33 @@ class Table {
             percWidth: undefined
         }
 
+        this.headerData = [
+            {
+                sorted: false,
+                ascending: false,
+                key: 'phrase', 
+                alterFunc: d => d
+            },
+            {
+                sorted: false,
+                ascending: false,
+                key: 'total',
+                alterFunc: d => +d
+            },
+            {
+                sorted: false,
+                ascending: false,
+                key: 'percent_of_d_speeches',
+                alterFunc: d => +d
+            },
+            {
+                sorted: false,
+                ascending: false,
+                key: 'total',
+                alterFunc: d => +d
+            }
+        ]
+
         console.log(this.data)
         this.drawTable()
     }
@@ -25,6 +52,7 @@ class Table {
     }
 
     drawTable(){
+        this.attachSortHandlers()
         this.getTableImgSize()
         this.updateTable()
     }
@@ -44,7 +72,7 @@ class Table {
             .text(d => d.value)
 
         let vizCells = cells.filter(d => d.type === 'viz')
-            .selectAll('td')
+            .selectAll('svg')
             .data(d => [d])
             .join('svg')
 
@@ -76,15 +104,21 @@ class Table {
 
     drawPercBars(percentageCells){
         this.getTableImgSize()
-        
+
+        percentageCells.selectAll('g')
+            .data(d => [{name: 'dem-rect'}, {name: 'rep-rect'}])
+            .join('g')
+            .attr('id', d => d.name)
+
+
         let xScale = d3.scaleLinear()
             .domain([0, 100])
             .range([0, this.viz.percWidth/2])
         
-        let rects = percentageCells.selectAll('rect')
+        percentageCells.select('#dem-rect')
+            .selectAll('rect')
             .data(d => [d])
-            
-        rects.join('rect')
+            .join('rect')
             .transition()
             .duration(200)
             .attr('width', d => xScale(d.value[0]))
@@ -92,7 +126,10 @@ class Table {
             .attr('x', d => xScale(100) - xScale(d.value[0]))
             .attr('fill', '#699bbe')
 
-        rects.join('rect')
+        percentageCells.select('#rep-rect')
+            .selectAll('rect')
+            .data(d => [d])
+            .join('rect')
             .transition()
             .duration(200)
             .attr('width', d => xScale(d.value[1]))
@@ -132,5 +169,39 @@ class Table {
         let dataList = [phrase, frequency, percentages, total];
 
         return dataList;
+    }
+
+    attachSortHandlers() 
+    {
+        let that = this
+
+        let header = d3.select('#columnHeaders')
+            .selectAll('th')
+            .data(that.headerData)
+            .on('click', function(h, d) {
+                that.headerData.forEach(e => e.sorted = false)
+
+                if(!h.ascending){
+                    that.data.sort((a,b) => {
+                        if(h.alterFunc(a[h.key]) > h.alterFunc(b[h.key])){ return 1}
+                        if(h.alterFunc(a[h.key]) < h.alterFunc(b[h.key])){ return -1}
+                        return 0
+                    })
+                    h.ascending = true
+                    h.sorted = true
+                }
+                else{
+                    that.data.sort((a,b) => {
+                        if(h.alterFunc(a[h.key]) > h.alterFunc(b[h.key])){ return -1}
+                        if(h.alterFunc(a[h.key]) < h.alterFunc(b[h.key])){ return 1}
+                        return 0
+                    })
+                    h.ascending = false
+                    h.sorted = true
+                }
+                that.updateTable()
+            })
+
+
     }
 }
