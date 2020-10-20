@@ -118,7 +118,7 @@ class Beeswarm {
 
         let colorScale = d3.scaleOrdinal()
             .domain(bins)
-            .range(d3.schemeSet2.slice(0, 5))
+            .range(d3.schemeSet2.slice(0, 6))
 
         // TODO: In order to dynamically size the width of the plot and make everything look good, I'll need to do the hacker version :(
         let circles = d3.select('#circles')
@@ -161,14 +161,14 @@ class Beeswarm {
     }
 
     mouseOver(data){
-        let roundTwo = (d) => Math.round(100*Math.abs(d))/100
+        let round = (d, r = 2) => Math.round(100*Math.abs(d))/100
 
         d3.select('.tooltip-header')
-            .text(`${data.category.replace(/\b\w/g, c => c.toUpperCase())}`)
+            .text(`${data.phrase.replace(/\b\w/g, c => c.toUpperCase())}`)
             // TODO: Learn more about regex
 
         d3.select('.tooltip-stats-l1')
-            .text(`${data.position > 0 ? "R+" : "D+"}, ${roundTwo(data.position)}%`)
+            .text(`${data.position > 0 ? "R+" : "D+"}, ${round(data.position)}%`)
         d3.select('.tooltip-stats-l2')
             .text(`in ${Math.round((data.total/50)*100)}% of speeches`)
 
