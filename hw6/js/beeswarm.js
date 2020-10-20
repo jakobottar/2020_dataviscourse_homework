@@ -152,12 +152,12 @@ class Beeswarm {
             .attr('x', 0)
             .attr('y', (_d, i) => {return isExpanded ? i*130 + 20 + 50 : 20 + 50})
             .text(d => d)
-            .attr('opacity', d => {return isExpanded ? 100 : 0})    
+            .attr('opacity', _ => {return isExpanded ? 100 : 0})    
             
         d3.select('#center-line')
             .transition()
             .duration(200)
-            .attr('y2', isExpanded ? this.size.height : 200)
+            .attr('y2', isExpanded ? this.size.height : 200) 
     }
 
     mouseOver(data){
@@ -165,7 +165,6 @@ class Beeswarm {
 
         d3.select('.tooltip-header')
             .text(`${data.phrase.replace(/\b\w/g, c => c.toUpperCase())}`)
-            // TODO: Learn more about regex
 
         d3.select('.tooltip-stats-l1')
             .text(`${data.position > 0 ? "R+" : "D+"}, ${round(data.position)}%`)

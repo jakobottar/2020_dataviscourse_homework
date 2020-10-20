@@ -8,6 +8,7 @@
     <script src="https://d3js.org/d3-array.v2.min.js"></script>
     <script src="https://d3js.org/d3-force.v2.min.js"></script>
     <link href="https://fonts.googleapis.com/css?family=Work+Sans:400,700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://use.fontawesome.com/releases/v5.3.1/css/all.css" integrity="sha384-mzrmE5qonljUremFsqc01SB46JvROS7bZs3IO2EmfFsd15uHvIt+Y8vEf7N7fWAU" crossorigin="anonymous">
   
     <!-- Bootstrap styling if you want to use it:  -->
     <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/4.0.0/css/bootstrap.min.css"
@@ -30,7 +31,25 @@
     </label>
     <div class='grid-container'>
         <div id='beeswarm'></div>
-        <div id='table'></div>
+        <table id='table'>
+            <thead>
+            <tr id="columnHeaders" class='header'>
+                <th class="sortable">Phrase <i class="fas no-display"></i></th>
+                <th class="sortable">Frequency <i class="fas no-display"></i></th>
+                <th class="sortable">Percentages <i class="fas no-display"></i></th>
+                <th class="sortable">Total <i class="fas no-display"></i></th>
+            </tr>
+            <tr class='header'>
+                <td></td>
+                <td><svg id="freqAxis" class='tableAxis'></svg></td>
+                <td><svg id="percentAxis" class='tableAxis'></svg></td>
+                <td></td>
+            </tr>
+            </thead>
+            <tbody id="tableBody">
+
+            </tbody>
+        </table>
     </div>
 </body>
 <script src="js/table.js"></script>
