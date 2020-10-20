@@ -161,7 +161,7 @@ class Beeswarm {
     }
 
     mouseOver(data){
-        let round = (d, r = 2) => Math.round(100*Math.abs(d))/100
+        let round = (d) => Math.round(100*Math.abs(d))/100
 
         d3.select('.tooltip-header')
             .text(`${data.phrase.replace(/\b\w/g, c => c.toUpperCase())}`)
