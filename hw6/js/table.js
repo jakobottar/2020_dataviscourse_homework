@@ -19,13 +19,17 @@ class Table {
         }
     }
 
-    drawTable(){
+    getTableImgSize() {
         this.viz.freqWidth = d3.select('#freqAxis').node().getBoundingClientRect().width;
         this.viz.percWidth = d3.select('#percentAxis').node().getBoundingClientRect().width;
-        this.updatePlot()
     }
 
-    updatePlot(){
+    drawTable(){
+        this.getTableImgSize()
+        this.updateTable()
+    }
+
+    updateTable(){
         let rows = d3.select('#tableBody')
             .selectAll('tr')
             .data(this.data)
@@ -38,6 +42,63 @@ class Table {
 
         cells.filter(d => d.type === 'text')
             .text(d => d.value)
+
+        let vizCells = cells.filter(d => d.type === 'viz')
+            .selectAll('td')
+            .data(d => [d])
+            .join('svg')
+
+        this.drawFreqBars(vizCells.filter(d => d.class == 'frequency'))
+        this.drawPercBars(vizCells.filter(d => d.class == 'percentages'))
+    }
+
+    drawFreqBars(frequencyCells){
+        let xScale = d3.scaleLinear()
+            .domain([0, 1])
+            .range([0, this.viz.freqWidth])
+
+        // TODO: Get this list dynamically
+        let bins = ['economy/fiscal issues', 'energy/environment', 'crime/justice', 'education', 'health care', 'mental health/substance abuse']
+
+        let colorScale = d3.scaleOrdinal()
+            .domain(bins)
+            .range(d3.schemeSet2.slice(0, 6))
+
+        frequencyCells.selectAll('rect')
+            .data(d => [d])
+            .join('rect')
+            .transition()
+            .duration(200)
+            .attr('width', d => xScale(d.value))
+            .attr('height', this.viz.height)
+            .attr('fill', d => colorScale(d.category))
+    }
+
+    drawPercBars(percentageCells){
+        this.getTableImgSize()
+        
+        let xScale = d3.scaleLinear()
+            .domain([0, 100])
+            .range([0, this.viz.percWidth/2])
+        
+        let rects = percentageCells.selectAll('rect')
+            .data(d => [d])
+            
+        rects.join('rect')
+            .transition()
+            .duration(200)
+            .attr('width', d => xScale(d.value[0]))
+            .attr('height', this.viz.height)
+            .attr('x', d => xScale(100) - xScale(d.value[0]))
+            .attr('fill', '#699bbe')
+
+        rects.join('rect')
+            .transition()
+            .duration(200)
+            .attr('width', d => xScale(d.value[1]))
+            .attr('height', this.viz.height)
+            .attr('x', this.viz.percWidth/2)
+            .attr('fill', '#ed8276')
     }
 
     rowToCellDataTransform(d) {
@@ -52,16 +113,13 @@ class Table {
             type: 'viz',
             class: 'frequency',
             category: d.category,
-            value: (d.total / 50) * 100
+            value: (d.total / 50)
         };
         let percentages = {
             type: 'viz',
             class: 'percentages',
             category: d.category,
-            value: {
-                percRSpeeches: d.percent_of_r_speeches,
-                percDSpeeches: d.percent_of_d_speeches
-            }
+            value: [+d.percent_of_d_speeches, +d.percent_of_r_speeches]
         }
         let total = {
             type: 'text',
