@@ -165,52 +165,80 @@ class Beeswarm {
             .attr('y2', isExpanded ? this.size.height : 200) 
     }
 
-    drawBrush(isExpanded = false){
+	// TODO: Fix this garbage
+	// TODO: Add highlighting
+    drawBrush(isExpanded = false){ 
+		d3.selectAll('.brush').remove()
+
 		let xScale = d3.scaleLinear()
             .domain([d3.min(this.data, d => d.position), d3.max(this.data, d => d.position)])
-            .range([this.size.padding, this.size.width-this.size.padding])
-		
-		let brushGroup = d3
-			.select('#beeswarm')
-			.select('.wrapper-group')
-			.append("g")
-			.attr('transform', `translate(0, ${this.size.axisPadding})`)
-			.classed("brush", true);
-
+			.range([this.size.padding, this.size.width-this.size.padding])
+			
 		let that = this
 
-		const xBrush = d3
-			.brushX()
-			.extent([[0, 0], [this.size.width, 150]])
-			.on('start', _ => {console.log('started brushing!')})
-			.on('end', function () {
-				const selection = d3.brushSelection(this);
-				const selectedData = [];
+		if(!isExpanded){
+			let brushGroup = d3
+				.select('#beeswarm')
+				.select('.wrapper-group')
+				.append("g")
+				.attr('transform', `translate(0, ${this.size.axisPadding})`)
+				.classed("brush", true);
 
-				console.log(selection)
+			const xBrush = d3
+				.brushX()
+				.extent([[0, 0], [this.size.width, 150]])
+				.on('end', function () {
+					const selection = d3.brushSelection(this);
+					const selectedData = [];
+					if (selection) {
+						const [left, right] = selection;
+						that.data.forEach((d, i) => {
+							if ( xScale(d.position) >= left && xScale(d.position) <= right ) {
+								selectedData.push(that.data[i]);
+							}
+						});
+						that.table.updateData(selectedData)
+					}
+					else{ that.table.updateData() }
+				})
 
-				console.log(xScale(110.35))
-				
-				if (selection) {
-					const [left, right] = selection;
-					that.data.forEach((d, i) => {
-						if (
-							xScale(d.position) >= left &&
-							xScale(d.position) <= right 
-						) {
-							selectedData.push(that.data[i]);
+			brushGroup.call(xBrush)
+		}
+		else{ // TODO: Make these clear when another is called.
+			let brushData = ['economy/fiscal issues', 'energy/environment', 'crime/justice', 'education', 'health care', 'mental health/substance abuse']
+
+			brushData.forEach( (d, i) => {
+				let category = d
+
+				let brushGroup = d3
+				.select('#beeswarm')
+				.select('.wrapper-group')
+				.append("g")
+				.attr('transform', `translate(0, ${this.size.axisPadding + i*130 + 10})`)
+				.classed("brush", true);
+
+				const xBrush = d3
+					.brushX()
+					.extent([[0, 0], [this.size.width, 130]])
+					.on('end', function () {
+						const selection = d3.brushSelection(this);
+						const selectedData = [];
+						if (selection) {
+							const [left, right] = selection;
+							that.data.forEach((d, i) => {
+								if ( xScale(d.position) >= left && xScale(d.position) <= right && d.category == category) {
+									selectedData.push(that.data[i]);
+								}
+							});
+							that.table.updateData(selectedData)
 						}
-					});
-					that.table.updateData(selectedData)
-				}
-				else{
-					that.table.updateData()
-				}
-				console.log(selectedData)
-				
-			})
+						else{ that.table.updateData() }
+					})
 
-		brushGroup.call(xBrush)
+				brushGroup.call(xBrush)
+			})
+		}
+		
     }
 
     mouseOver(data){
