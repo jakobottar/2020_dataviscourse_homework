@@ -81,9 +81,10 @@ div.tooltip {
 }
 
 table {
+    display: block;
     grid-area: table;
-    /* table-layout: auto; */
-    /* line-height: 15px; */
+    table-layout: fixed;
+    line-height: 15px;
     font-size: 14px;
 }
 
@@ -95,12 +96,20 @@ thead {
   /* line-height: 10px; */
 }
 
-th {
-  height: 40px;
+td.phrase{
+  width: 30%
 }
 
-td {
-  height: 30px;
+td.frequency{
+  width: 30%
+}
+
+td.percentages{
+  width: 30%
+}
+
+td.total{
+  width: 10%
 }
 
 td svg {

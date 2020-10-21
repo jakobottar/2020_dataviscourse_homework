@@ -46,7 +46,7 @@ class Table {
             .domain(bins)
             .range(d3.schemeSet2.slice(0, 6))
 
-        console.log(this.data)
+        // console.log(this.data)
         this.drawTable()
     }
 
@@ -112,8 +112,6 @@ class Table {
     }
 
     updateTable(){
-        console.log(this.data)
-
         let rows = d3.select('#tableBody')
             .selectAll('tr')
             .data(this.data)

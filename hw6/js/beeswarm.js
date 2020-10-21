@@ -11,7 +11,7 @@ class Beeswarm {
 			axisPadding: 50
         };
 
-		console.log(this.data)
+		// console.log(this.data)
         this.drawPlot()
     }
 
