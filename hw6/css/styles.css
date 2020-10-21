@@ -82,8 +82,8 @@ div.tooltip {
 
 table {
     grid-area: table;
-    table-layout: auto;
-    line-height: 15px;
+    /* table-layout: auto; */
+    /* line-height: 15px; */
     font-size: 14px;
 }
 
@@ -93,6 +93,14 @@ thead {
   text-align: center;
   /* padding-right: 6px; */
   /* line-height: 10px; */
+}
+
+th {
+  height: 40px;
+}
+
+td {
+  height: 30px;
 }
 
 td svg {

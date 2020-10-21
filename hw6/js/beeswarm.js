@@ -1,13 +1,17 @@
 class Beeswarm {
-    constructor(data){ 
-        this.data = data;
+    constructor(data, tableObj){ 
+		this.data = data;
+		
+		this.table = tableObj
 
         this.size = {
             height: undefined,
             width: undefined,
-            padding: 25
+			padding: 25,
+			axisPadding: 50
         };
 
+		console.log(this.data)
         this.drawPlot()
     }
 
@@ -49,7 +53,8 @@ class Beeswarm {
     updatePlot(isExpanded = false){
         this.drawAxis()
         this.drawCircles(isExpanded)
-        this.drawText(isExpanded)
+		this.drawText(isExpanded)
+		this.drawBrush(isExpanded)
     }
 
     drawAxis(){
@@ -158,6 +163,54 @@ class Beeswarm {
             .transition()
             .duration(200)
             .attr('y2', isExpanded ? this.size.height : 200) 
+    }
+
+    drawBrush(isExpanded = false){
+		let xScale = d3.scaleLinear()
+            .domain([d3.min(this.data, d => d.position), d3.max(this.data, d => d.position)])
+            .range([this.size.padding, this.size.width-this.size.padding])
+		
+		let brushGroup = d3
+			.select('#beeswarm')
+			.select('.wrapper-group')
+			.append("g")
+			.attr('transform', `translate(0, ${this.size.axisPadding})`)
+			.classed("brush", true);
+
+		let that = this
+
+		const xBrush = d3
+			.brushX()
+			.extent([[0, 0], [this.size.width, 150]])
+			.on('start', _ => {console.log('started brushing!')})
+			.on('end', function () {
+				const selection = d3.brushSelection(this);
+				const selectedData = [];
+
+				console.log(selection)
+
+				console.log(xScale(110.35))
+				
+				if (selection) {
+					const [left, right] = selection;
+					that.data.forEach((d, i) => {
+						if (
+							xScale(d.position) >= left &&
+							xScale(d.position) <= right 
+						) {
+							selectedData.push(that.data[i]);
+						}
+					});
+					that.table.updateData(selectedData)
+				}
+				else{
+					that.table.updateData()
+				}
+				console.log(selectedData)
+				
+			})
+
+		brushGroup.call(xBrush)
     }
 
     mouseOver(data){

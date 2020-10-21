@@ -2,8 +2,8 @@ let beeswarm
 let table
 
 loadData().then(data => {
-    beeswarm = new Beeswarm(data)
     table = new Table(data)
+    beeswarm = new Beeswarm(data, table)
 
     // table.doSomething()
     // beeswarm.doSomething()

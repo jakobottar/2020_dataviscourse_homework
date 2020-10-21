@@ -73,6 +73,11 @@ class Table {
             .range([this.viz.padding, this.viz.percWidth/2 - 2])
     }
 
+    updateData(data = this.allData){
+        this.data = data;
+        this.updateTable()
+    }
+
     drawTable(){
         this.updateTableSize()
         this.attachSortHandlers()
@@ -107,6 +112,8 @@ class Table {
     }
 
     updateTable(){
+        console.log(this.data)
+
         let rows = d3.select('#tableBody')
             .selectAll('tr')
             .data(this.data)
