@@ -3,10 +3,7 @@ let table
 
 loadData().then(data => {
     table = new Table(data)
-    beeswarm = new Beeswarm(data, table)
-
-    // table.doSomething()
-    // beeswarm.doSomething()
+    beeswarm = new Beeswarm(data, table) 
 })
 
 async function loadData(){

@@ -123,7 +123,7 @@ class Table {
             .attr('class', d => d.class);
 
         cells.filter(d => d.type === 'text')
-            .text(d => d.value)
+            .text(d => d.value.replace(/\b\w/g, c => c.toUpperCase()))
 
         let vizCells = cells.filter(d => d.type === 'viz')
             .selectAll('svg')

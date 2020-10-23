@@ -29,8 +29,13 @@
         <input type="checkbox" id='expandSwitch' onclick='updatePlot()' autocomplete="off">
         <span class="slider round"></span>
     </label>
+    <button onclick="beeswarm.tellStory()">Extreme Values</button>
     <div class='grid-container'>
         <div id='beeswarm'></div>
+        <svg id="story-div", class="hidden">
+            <rect id="ccBox", class="storyBox"></rect>
+            <rect id="prBox", class="storyBox"></rect>
+        </svg>
         <table id='table'>
             <thead>
             <tr id="columnHeaders" class='header'>

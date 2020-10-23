@@ -1,6 +1,7 @@
 class Beeswarm {
     constructor(data, tableObj){ 
-		this.data = data;
+        this.data = data;
+        this.data.forEach(d => d.highlighted = true)
 		
 		this.table = tableObj
 
@@ -11,13 +12,54 @@ class Beeswarm {
 			axisPadding: 50
         };
 
-		// console.log(this.data)
+		console.log(this.data)
         this.drawPlot()
     }
 
     updatePlotSize(){
         this.size.width = d3.select('#beeswarm').node().getBoundingClientRect().width;
         this.size.height = d3.select('#beeswarm').node().getBoundingClientRect().height;
+    }
+
+    tellStory(clear = false){
+
+        if(clear){
+            // clear the div here
+        }
+
+        let xScale = d3.scaleLinear()
+            .domain([d3.min(this.data, d => d.sourceX), d3.max(this.data, d => d.sourceX)])
+            .range([this.size.padding, this.size.width-this.size.padding])
+
+        let isChecked = document.getElementById('expandSwitch').checked
+        let storyDiv = d3.select('#story-div')
+            .classed("hidden", false)
+
+        let climateChange = this.data.find(d => d.phrase == "climate change")
+        let prison = this.data.find(d => d.phrase == "prison")
+
+        let ccX = xScale(climateChange.sourceX)
+        let ccY = climateChange.sourceY + 75 + 50
+
+        let prX = xScale(prison.sourceX)
+        let prY = prison.sourceY + 75 + 50
+
+        if(isChecked){
+            ccX = xScale(climateChange.moveX)
+            ccY = climateChange.moveY + 75 + 50
+
+            prX = xScale(prison.moveX)
+            prY = prison.moveY + 75 + 50
+        }
+
+        d3.select('#ccBox')
+            .attr("x", (ccX + 10))     
+            .attr("y", (ccY - 60)); 
+
+        d3.select('#prBox')
+            .attr("x", (prX + 10))     
+            .attr("y", (prY - 60));
+
     }
 
     drawPlot(){
@@ -28,6 +70,7 @@ class Beeswarm {
         // set size of plot
         this.updatePlotSize()
 
+        svgGroup.append('g').attr('id', 'brush-group')
         svgGroup.append('g').attr('id', 'axis')
         svgGroup.append('g').attr('id', 'circles')
         svgGroup.append('g').attr('id', 'plot-text')
@@ -130,6 +173,7 @@ class Beeswarm {
             .selectAll('circle')
             .data(this.data)
             .join('circle')
+            .classed('deselected', d => !d.highlighted)
             .on('mouseover', this.mouseOver)
             .on('mousemove', this.mouseMove)
             .on('mouseout', this.mouseOut)
@@ -139,7 +183,10 @@ class Beeswarm {
             .attr('cy', function(d) { return isExpanded ? (d.moveY + 75 + 50) : (d.sourceY + 75 + 50) })
             .attr('cx', function(d) { return isExpanded ? xScale(d.moveX) : xScale(d.sourceX) })
             .attr('r', d => rScale(+d.total))
-            .attr('fill', d => colorScale(d.category))
+            .attr('fill', d => {
+                if(d.highlighted) { return colorScale(d.category) }
+                else{ return "lightgray" } 
+            })
     }
 
     drawText(isExpanded = false){
@@ -168,7 +215,8 @@ class Beeswarm {
 	// TODO: Fix this garbage
 	// TODO: Add highlighting
     drawBrush(isExpanded = false){ 
-		d3.selectAll('.brush').remove()
+        d3.selectAll('.brush').remove()
+        this.data.forEach(d => d.highlighted = true)
 
 		let xScale = d3.scaleLinear()
             .domain([d3.min(this.data, d => d.position), d3.max(this.data, d => d.position)])
@@ -178,8 +226,7 @@ class Beeswarm {
 
 		if(!isExpanded){
 			let brushGroup = d3
-				.select('#beeswarm')
-				.select('.wrapper-group')
+				.select('#brush-group')
 				.append("g")
 				.attr('transform', `translate(0, ${this.size.axisPadding})`)
 				.classed("brush", true);
@@ -189,17 +236,25 @@ class Beeswarm {
 				.extent([[0, 0], [this.size.width, 150]])
 				.on('end', function () {
 					const selection = d3.brushSelection(this);
-					const selectedData = [];
+                    const selectedData = [];
+
 					if (selection) {
 						const [left, right] = selection;
 						that.data.forEach((d, i) => {
 							if ( xScale(d.position) >= left && xScale(d.position) <= right ) {
-								selectedData.push(that.data[i]);
-							}
+                                selectedData.push(that.data[i]);
+                            }
+                            else{
+                                that.data[i].highlighted = false;
+                            }
 						});
 						that.table.updateData(selectedData)
 					}
-					else{ that.table.updateData() }
+					else{ 
+                        that.table.updateData()
+                        that.data.forEach(d => d.highlighted = true)
+                    }
+                    that.updatePlot()
 				})
 
 			brushGroup.call(xBrush)
@@ -227,12 +282,20 @@ class Beeswarm {
 							const [left, right] = selection;
 							that.data.forEach((d, i) => {
 								if ( xScale(d.position) >= left && xScale(d.position) <= right && d.category == category) {
-									selectedData.push(that.data[i]);
-								}
+                                    selectedData.push(that.data[i]);
+                                }
+                                else{
+                                    that.data[i].highlighted = false;
+                                }
 							});
 							that.table.updateData(selectedData)
 						}
-						else{ that.table.updateData() }
+						else{ 
+                            that.table.updateData() 
+                            that.data.forEach(d => d.highlighted = true)
+                        }
+                        
+                        that.updatePlot(true)
 					})
 
 				brushGroup.call(xBrush)

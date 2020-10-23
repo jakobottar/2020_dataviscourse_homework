@@ -19,6 +19,31 @@ margin: 10px;
     width: 100%;
 }
 
+#story-div {
+  grid-area: bee;
+  height: 100%;
+  width: 100%;
+  background:white;
+  opacity: 50%;
+}
+
+.storyBox {
+  position: absolute;
+	text-align: center;
+	width: 100px;
+	height: 50px;
+	padding: 2px;
+	fill: rgb(245, 245, 245);
+	stroke: rgb(104, 100, 100);
+	border-radius: 8px;
+	pointer-events: none;
+}
+
+.hidden {
+  visibility: hidden;
+  pointer-events: none;
+}
+
 .wrapper-group {
     height: 100%;
     width: 100%;
@@ -50,13 +75,17 @@ margin: 10px;
     fill: grey;
 }
 
-#circles circle {
+circle.deselected {
+    opacity: 65%;
+    stroke: gray;
+}
+
+circle {
     opacity: 85%;
-    /* fill: gray; */
     stroke: black;
 }
 
-#circles circle:hover{
+circle:hover{
   stroke-width: 2px;
 }
 
