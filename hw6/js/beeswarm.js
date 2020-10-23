@@ -22,6 +22,8 @@ class Beeswarm {
     }
 
     tellStory(){
+        d3.select('#story-div').classed("hidden", false)
+
         let ccCirc = d3.selectAll('circle').filter(d => d.phrase == 'climate change')
         let prCirc = d3.selectAll('circle').filter(d => d.phrase == 'prison')
 
@@ -254,8 +256,7 @@ class Beeswarm {
 				let category = d
 
 				let brushGroup = d3
-				.select('#beeswarm')
-				.select('.wrapper-group')
+				.select('#brush-group')
 				.append("g")
 				.attr('transform', `translate(0, ${this.size.axisPadding + i*130 + 10})`)
 				.classed("brush", true);
