@@ -21,44 +21,32 @@ class Beeswarm {
         this.size.height = d3.select('#beeswarm').node().getBoundingClientRect().height;
     }
 
-    tellStory(clear = false){
+    tellStory(){
+        let ccCirc = d3.selectAll('circle').filter(d => d.phrase == 'climate change')
+        let prCirc = d3.selectAll('circle').filter(d => d.phrase == 'prison')
 
-        if(clear){
-            // clear the div here
-        }
+        let ccPos = ccCirc.node().getBoundingClientRect()
+        let prPos = prCirc.node().getBoundingClientRect()
 
-        let xScale = d3.scaleLinear()
-            .domain([d3.min(this.data, d => d.sourceX), d3.max(this.data, d => d.sourceX)])
-            .range([this.size.padding, this.size.width-this.size.padding])
-
-        let isChecked = document.getElementById('expandSwitch').checked
-        let storyDiv = d3.select('#story-div')
-            .classed("hidden", false)
-
-        let climateChange = this.data.find(d => d.phrase == "climate change")
-        let prison = this.data.find(d => d.phrase == "prison")
-
-        let ccX = xScale(climateChange.sourceX)
-        let ccY = climateChange.sourceY + 75 + 50
-
-        let prX = xScale(prison.sourceX)
-        let prY = prison.sourceY + 75 + 50
-
-        if(isChecked){
-            ccX = xScale(climateChange.moveX)
-            ccY = climateChange.moveY + 75 + 50
-
-            prX = xScale(prison.moveX)
-            prY = prison.moveY + 75 + 50
-        }
+        ccCirc.attr('fill', 'blue')
+        prCirc.attr('fill', 'red')
 
         d3.select('#ccBox')
-            .attr("x", (ccX + 10))     
-            .attr("y", (ccY - 60)); 
+            .style("left", (ccPos.x + 20) + "px")     
+            .style("top", (ccPos.y + 20) + "px")
+            .join('p')
+            .text("Democratic speeches mentioned climate change 49.11% more"); 
 
         d3.select('#prBox')
-            .attr("x", (prX + 10))     
-            .attr("y", (prY - 60));
+            .style("left", (prPos.x - 20 - 200) + "px")     
+            .style("top", (prPos.y + 20) + "px")
+            .join('p')
+            .text("Republican speeches mentioned prisons 52.33% more"); 
+
+        document.getElementById("story-div").addEventListener("click", _ => { 
+            d3.select('#story-div').classed("hidden", true) 
+            updatePlot(document.getElementById('expandSwitch').checked)
+        }); 
 
     }
 
